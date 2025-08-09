@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizMaster - Interactive Quiz App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #4cc9f0;
+            --success: #2ec4b6;
+            --warning: #ff9f1c;
+            --danger: #e63946;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #1a2a6c);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            text-align: center;
+            padding: 25px 20px;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        /* Start Screen */
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-screen h2 {
+            font-size: 2.2rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+
+        .start-screen p {
+            font-size: 1.1rem;
+            color: var(--dark);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .category-select {
+            margin: 30px 0;
+        }
+
+        .category-select h3 {
+            font-size: 1.4rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .category {
+            background: var(--light);
+            border: 2px solid var(--primary);
+            border-radius: 15px;
+            padding: 15px 25px;
+            min-width: 160px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category:hover {
+            transform: translateY(-5px);
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
+        }
+
+        .category i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .category h4 {
+            font-size: 1.2rem;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+        }
+
+        /* Quiz Screen */
+        .quiz-screen {
+            display: none;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .timer {
+            background: var(--warning);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .question-count {
+            font-size: 1.1rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .question-container {
+            margin-bottom: 30px;
+        }
+
+        .question {
+            font-size: 1.5rem;
+            color: var(--dark);
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 600px) {
+            .options {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .option {
+            background: var(--light);
+            border: 2px solid #dee2e6;
+            border-radius: 15px;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option:hover {
+            background: #e9ecef;
+            border-color: var(--primary);
+        }
+
+        .option.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .option.correct {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .option.incorrect {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Results Screen */
+        .results-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .results-screen h2 {
+            font-size: 2.2rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+
+        .score-container {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 8px 25px rgba(67, 97, 238, 0.3);
+        }
+
+        .score {
+            font-size: 5rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .score-text {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 150px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .stat-label {
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            height: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--accent), var(--primary));
+            border-radius: 5px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background: var(--light);
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        footer p {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-brain"></i> QuizMaster</h1>
+            <p>Test your knowledge with our interactive quizzes</p>
+        </header>
+
+        <div class="content">
+            <!-- Start Screen -->
+            <div class="start-screen" id="startScreen">
+                <h2>Welcome to QuizMaster!</h2>
+                <p>Select a category and challenge yourself with our timed quiz. Answer as many questions as you can before the timer runs out!</p>
+                
+                <div class="category-select">
+                    <h3>Select a Category</h3>
+                    <div class="categories">
+                        <div class="category" data-category="general">
+                            <i class="fas fa-globe-americas"></i>
+                            <h4>General Knowledge</h4>
+                        </div>
+                        <div class="category" data-category="science">
+                            <i class="fas fa-atom"></i>
+                            <h4>Science & Tech</h4>
+                        </div>
+                        <div class="category" data-category="history">
+                            <i class="fas fa-landmark"></i>
+                            <h4>History</h4>
+                        </div>
+                        <div class="category" data-category="geography">
+                            <i class="fas fa-globe-asia"></i>
+                            <h4>Geography</h4>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn" id="startBtn">
+                    <i class="fas fa-play"></i> Start Quiz
+                </button>
+            </div>
+            
+            <!-- Quiz Screen -->
+            <div class="quiz-screen" id="quizScreen">
+                <div class="quiz-header">
+                    <div class="timer">
+                        <i class="fas fa-clock"></i>
+                        <span id="time">60</span>s
+                    </div>
+                    <div class="question-count">
+                        Question <span id="currentQuestion">1</span>/<span id="totalQuestions">10</span>
+                    </div>
+                </div>
+                
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                
+                <div class="question-container">
+                    <div class="question" id="question"></div>
+                    <div class="options" id="options"></div>
+                </div>
+                
+                <div class="navigation">
+                    <button class="btn" id="prevBtn" disabled>
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </button>
+                    <button class="btn" id="nextBtn">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
+                    <button class="btn" id="submitBtn" style="display: none;">
+                        <i class="fas fa-check-circle"></i> Submit Quiz
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Results Screen -->
+            <div class="results-screen" id="resultsScreen">
+                <h2>Quiz Completed!</h2>
+                <p>Here are your results:</p>
+                
+                <div class="score-container">
+                    <div class="score" id="finalScore">0</div>
+                    <div class="score-text" id="scoreText">Keep learning!</div>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat">
+                        <i class="fas fa-check-circle"></i>
+                        <div class="stat-value" id="correctAnswers">0</div>
+                        <div class="stat-label">Correct</div>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-times-circle"></i>
+                        <div class="stat-value" id="incorrectAnswers">0</div>
+                        <div class="stat-label">Incorrect</div>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-percentage"></i>
+                        <div class="stat-value" id="percentage">0%</div>
+                        <div class="stat-label">Accuracy</div>
+                    </div>
+                </div>
+                
+                <button class="btn" id="restartBtn">
+                    <i class="fas fa-redo"></i> Take Another Quiz
+                </button>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Built with ❤️ using HTML, CSS & JavaScript</p>
+            <p>QuizMaster v1.0</p>
+        </footer>
+    </div>
+
+    <script>
+        // Quiz questions database
+        const quizData = {
+            general: [
+                {
+                    question: "What is the capital of France?",
+                    options: ["Berlin", "Madrid", "Paris", "Rome"],
+                    answer: 2
+                },
+                {
+                    question: "Which planet is known as the Red Planet?",
+                    options: ["Venus", "Mars", "Jupiter", "Saturn"],
+                    answer: 1
+                },
+                {
+                    question: "Who painted the Mona Lisa?",
+                    options: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"],
+                    answer: 2
+                },
+                {
+                    question: "What is the largest ocean on Earth?",
+                    options: ["Atlantic Ocean", "Indian Ocean", "Arctic Ocean", "Pacific Ocean"],
+                    answer: 3
+                },
+                {
+                    question: "Which element has the chemical symbol 'O'?",
+                    options: ["Gold", "Oxygen", "Osmium", "Oganesson"],
+                    answer: 1
+                },
+                {
+                    question: "How many continents are there?",
+                    options: ["5", "6", "7", "8"],
+                    answer: 2
+                },
+                {
+                    question: "What is the tallest mountain in the world?",
+                    options: ["K2", "Kilimanjaro", "Mount Everest", "Matterhorn"],
+                    answer: 2
+                },
+                {
+                    question: "Who wrote 'Romeo and Juliet'?",
+                    options: ["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"],
+                    answer: 1
+                },
+                {
+                    question: "What is the currency of Japan?",
+                    options: ["Won", "Yen", "Yuan", "Ringgit"],
+                    answer: 1
+                },
+                {
+                    question: "Which animal is known as the 'King of the Jungle'?",
+                    options: ["Tiger", "Elephant", "Lion", "Gorilla"],
+                    answer: 2
+                }
+            ],
+            science: [
+                {
+                    question: "What is the chemical symbol for gold?",
+                    options: ["Go", "Gd", "Au", "Ag"],
+                    answer: 2
+                },
+                {
+                    question: "Which planet is closest to the sun?",
+                    options: ["Venus", "Earth", "Mercury", "Mars"],
+                    answer: 2
+                },
+                {
+                    question: "What is the hardest natural substance on Earth?",
+                    options: ["Gold", "Iron", "Diamond", "Platinum"],
+                    answer: 2
+                },
+                {
+                    question: "What is the main gas found in the Earth's atmosphere?",
+                    options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
+                    answer: 2
+                },
+                {
+                    question: "What does DNA stand for?",
+                    options: ["Deoxyribonucleic Acid", "Dynamic Nuclear Acid", "Deoxyribose Nucleotide Assembly", "Dual Nucleotide Acid"],
+                    answer: 0
+                },
+                {
+                    question: "How many bones are in the human body?",
+                    options: ["206", "300", "150", "187"],
+                    answer: 0
+                },
+                {
+                    question: "What is the largest organ in the human body?",
+                    options: ["Liver", "Brain", "Skin", "Heart"],
+                    answer: 2
+                },
+                {
+                    question: "Which scientist proposed the theory of relativity?",
+                    options: ["Isaac Newton", "Albert Einstein", "Stephen Hawking", "Galileo Galilei"],
+                    answer: 1
+                },
+                {
+                    question: "What is the speed of light?",
+                    options: ["300,000 km/s", "150,000 km/s", "1,000,000 km/s", "30,000 km/s"],
+                    answer: 0
+                },
+                {
+                    question: "What is the pH value of pure water?",
+                    options: ["5", "7", "10", "0"],
+                    answer: 1
+                }
+            ],
+            history: [
+                {
+                    question: "In which year did World War II end?",
+                    options: ["1943", "1945", "1950", "1939"],
+                    answer: 1
+                },
+                {
+                    question: "Who was the first President of the United States?",
+                    options: ["Thomas Jefferson", "Abraham Lincoln", "George Washington", "John Adams"],
+                    answer: 2
+                },
+                {
+                    question: "The ancient Egyptian civilization developed along which river?",
+                    options: ["Tigris", "Nile", "Euphrates", "Indus"],
+                    answer: 1
+                },
+                {
+                    question: "Which empire was ruled by Julius Caesar?",
+                    options: ["Greek", "Ottoman", "Roman", "Persian"],
+                    answer: 2
+                },
+                {
+                    question: "The Industrial Revolution began in which country?",
+                    options: ["France", "Germany", "United States", "Great Britain"],
+                    answer: 3
+                },
+                {
+                    question: "Who discovered America?",
+                    options: ["Christopher Columbus", "Vasco da Gama", "James Cook", "Ferdinand Magellan"],
+                    answer: 0
+                },
+                {
+                    question: "The Renaissance began in which country?",
+                    options: ["France", "Italy", "Spain", "England"],
+                    answer: 1
+                },
+                {
+                    question: "In which year did the Titanic sink?",
+                    options: ["1905", "1912", "1923", "1931"],
+                    answer: 1
+                },
+                {
+                    question: "Who was the first woman to win a Nobel Prize?",
+                    options: ["Marie Curie", "Rosalind Franklin", "Florence Nightingale", "Mother Teresa"],
+                    answer: 0
+                },
+                {
+                    question: "The Berlin Wall fell in which year?",
+                    options: ["1985", "1989", "1991", "1979"],
+                    answer: 1
+                }
+            ],
+            geography: [
+                {
+                    question: "Which country has the largest population?",
+                    options: ["India", "United States", "China", "Russia"],
+                    answer: 2
+                },
+                {
+                    question: "What is the largest desert in the world?",
+                    options: ["Sahara", "Gobi", "Arabian", "Antarctica"],
+                    answer: 3
+                },
+                {
+                    question: "Which river flows through the Grand Canyon?",
+                    options: ["Mississippi", "Colorado", "Rio Grande", "Columbia"],
+                    answer: 1
+                },
+                {
+                    question: "Mount Everest is located in which mountain range?",
+                    options: ["Andes", "Alps", "Himalayas", "Rockies"],
+                    answer: 2
+                },
+                {
+                    question: "Which country is known as the Land of the Rising Sun?",
+                    options: ["China", "Thailand", "Japan", "South Korea"],
+                    answer: 2
+                },
+                {
+                    question: "What is the capital of Canada?",
+                    options: ["Toronto", "Vancouver", "Ottawa", "Montreal"],
+                    answer: 2
+                },
+                {
+                    question: "Which continent is the largest by area?",
+                    options: ["Africa", "Asia", "North America", "Europe"],
+                    answer: 1
+                },
+                {
+                    question: "The Great Barrier Reef is located off the coast of which country?",
+                    options: ["Brazil", "Indonesia", "Australia", "Philippines"],
+                    answer: 2
+                },
+                {
+                    question: "Which of these countries is landlocked?",
+                    options: ["Italy", "France", "Switzerland", "Spain"],
+                    answer: 2
+                },
+                {
+                    question: "What is the smallest country in the world?",
+                    options: ["Monaco", "Vatican City", "San Marino", "Liechtenstein"],
+                    answer: 1
+                }
+            ]
+        };
+
+        // DOM Elements
+        const startScreen = document.getElementById('startScreen');
+        const quizScreen = document.getElementById('quizScreen');
+        const resultsScreen = document.getElementById('resultsScreen');
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const questionElement = document.getElementById('question');
+        const optionsElement = document.getElementById('options');
+        const timeElement = document.getElementById('time');
+        const currentQuestionElement = document.getElementById('currentQuestion');
+        const totalQuestionsElement = document.getElementById('totalQuestions');
+        const progressBar = document.getElementById('progressBar');
+        const finalScore = document.getElementById('finalScore');
+        const correctAnswers = document.getElementById('correctAnswers');
+        const incorrectAnswers = document.getElementById('incorrectAnswers');
+        const percentage = document.getElementById('percentage');
+        const scoreText = document.getElementById('scoreText');
+
+        // Quiz state
+        let currentCategory = '';
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let score = 0;
+        let timer;
+        let timeLeft = 60;
+
+        // Event Listeners
+        document.querySelectorAll('.category').forEach(category => {
+            category.addEventListener('click', () => {
+                // Remove active class from all categories
+                document.querySelectorAll('.category').forEach(cat => {
+                    cat.style.background = '';
+                    cat.style.color = '';
+                });
+                
+                // Add active class to selected category
+                category.style.background = 'linear-gradient(to right, #3a0ca3, #4361ee)';
+                category.style.color = 'white';
+                
+                // Set current category
+                currentCategory = category.dataset.category;
+            });
+        });
+
+        startBtn.addEventListener('click', startQuiz);
+        restartBtn.addEventListener('click', restartQuiz);
+        prevBtn.addEventListener('click', showPreviousQuestion);
+        nextBtn.addEventListener('click', showNextQuestion);
+        submitBtn.addEventListener('click', showResults);
+
+        // Functions
+        function startQuiz() {
+            if (!currentCategory) {
+                alert('Please select a category first!');
+                return;
+            }
+            
+            // Reset quiz state
+            currentQuestions = [...quizData[currentCategory]];
+            currentQuestionIndex = 0;
+            userAnswers = Array(currentQuestions.length).fill(null);
+            score = 0;
+            timeLeft = 60;
+            
+            // Update UI
+            startScreen.style.display = 'none';
+            quizScreen.style.display = 'block';
+            resultsScreen.style.display = 'none';
+            
+            // Initialize quiz
+            totalQuestionsElement.textContent = currentQuestions.length;
+            showQuestion();
+            startTimer();
+        }
+
+        function showQuestion() {
+            const question = currentQuestions[currentQuestionIndex];
+            
+            // Update UI
+            questionElement.textContent = question.question;
+            optionsElement.innerHTML = '';
+            
+            // Update question count
+            currentQuestionElement.textContent = currentQuestionIndex + 1;
+            
+            // Update progress bar
+            const progressPercentage = ((currentQuestionIndex + 1) / currentQuestions.length) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            
+            // Create options
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.classList.add('option');
+                optionElement.textContent = option;
+                
+                // Add selected class if this option was selected previously
+                if (userAnswers[currentQuestionIndex] === index) {
+                    optionElement.classList.add('selected');
+                }
+                
+                // Add event listener
+                optionElement.addEventListener('click', () => selectOption(index));
+                
+                optionsElement.appendChild(optionElement);
+            });
+            
+            // Update navigation buttons
+            prevBtn.disabled = currentQuestionIndex === 0;
+            
+            if (currentQuestionIndex === currentQuestions.length - 1) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'inline-flex';
+            } else {
+                nextBtn.style.display = 'inline-flex';
+                submitBtn.style.display = 'none';
+            }
+        }
+
+        function selectOption(optionIndex) {
+            // Save user answer
+            userAnswers[currentQuestionIndex] = optionIndex;
+            
+            // Update UI
+            document.querySelectorAll('.option').forEach((option, index) => {
+                option.classList.remove('selected');
+                if (index === optionIndex) {
+                    option.classList.add('selected');
+                }
+            });
+        }
+
+        function showPreviousQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                showQuestion();
+            }
+        }
+
+        function showNextQuestion() {
+            if (currentQuestionIndex < currentQuestions.length - 1) {
+                currentQuestionIndex++;
+                showQuestion();
+            }
+        }
+
+        function startTimer() {
+            timeElement.textContent = timeLeft;
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                timeElement.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    showResults();
+                }
+            }, 1000);
+        }
+
+        function showResults() {
+            clearInterval(timer);
+            
+            // Calculate score
+            userAnswers.forEach((answer, index) => {
+                if (answer === currentQuestions[index].answer) {
+                    score += 10;
+                }
+            });
+            
+            const totalCorrect = score / 10;
+            const totalIncorrect = currentQuestions.length - totalCorrect;
+            const accuracy = Math.round((totalCorrect / currentQuestions.length) * 100);
+            
+            // Update UI
+            quizScreen.style.display = 'none';
+            resultsScreen.style.display = 'block';
+            
+            finalScore.textContent = score;
+            correctAnswers.textContent = totalCorrect;
+            incorrectAnswers.textContent = totalIncorrect;
+            percentage.textContent = `${accuracy}%`;
+            
+            // Set score text based on performance
+            if (accuracy >= 80) {
+                scoreText.textContent = "Excellent! You're a quiz master!";
+            } else if (accuracy >= 60) {
+                scoreText.textContent = "Good job! You know your stuff!";
+            } else if (accuracy >= 40) {
+                scoreText.textContent = "Not bad! Keep learning!";
+            } else {
+                scoreText.textContent = "Keep studying and try again!";
+            }
+        }
+
+        function restartQuiz() {
+            startScreen.style.display = 'block';
+            quizScreen.style.display = 'none';
+            resultsScreen.style.display = 'none';
+            
+            // Reset category selection
+            document.querySelectorAll('.category').forEach(cat => {
+                cat.style.background = '';
+                cat.style.color = '';
+            });
+            
+            currentCategory = '';
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set total questions
+            totalQuestionsElement.textContent = "10";
+        });
+    </script>
+</body>
+</html>
